@@ -49,6 +49,11 @@ body {
   display: flex !important;
 }
 
+#view-game:not(.active),
+#view-lobby:not(.active) {
+  display: none !important;
+}
+
 /* ================= LOBBY SCREEN ================= */
 #view-lobby {
   align-items: center;
@@ -356,9 +361,14 @@ input[type="text"]:focus, .select-styled:focus {
 
 /* ================= GAME SCREEN ================= */
 #view-game {
+  display: none !important;
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
+}
+
+#view-game.active {
+  display: flex !important;
 }
 
 /* Top Header */

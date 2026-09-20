@@ -88,6 +88,11 @@ class GameClient {
         this.socket.connect();
       }
     });
+    window.addEventListener('focus', () => {
+      if (this.socket && !this.socket.connected) {
+        this.socket.connect();
+      }
+    });
 
     this.sound = new SoundEffects();
     this.drawingEngine = null;
@@ -122,6 +127,9 @@ class GameClient {
   }
 
   init() {
+    if (this.gameView) this.gameView.style.setProperty('display', 'none', 'important');
+    if (this.lobbyView) this.lobbyView.style.setProperty('display', 'flex', 'important');
+
     this.initDrawingEngine();
     this.initAvatarSelector();
     this.initLobbyEvents();
@@ -175,11 +183,10 @@ class GameClient {
         overlayGameOver.classList.remove('active');
       });
     }
-    if (overlayGameOver) {
-      overlayGameOver.addEventListener('click', (e) => {
-        if (e.target === overlayGameOver) {
-          overlayGameOver.classList.remove('active');
-        }
+    const btnPlayAgain = document.getElementById('btn-play-again');
+    if (btnPlayAgain) {
+      btnPlayAgain.addEventListener('click', () => {
+        window.location.reload();
       });
     }
   }
@@ -631,8 +638,25 @@ class GameClient {
   }
 
   showGameView() {
-    this.lobbyView.classList.remove('active');
-    this.gameView.classList.add('active');
+    if (this.lobbyView) {
+      this.lobbyView.classList.remove('active');
+      this.lobbyView.style.setProperty('display', 'none', 'important');
+    }
+    if (this.gameView) {
+      this.gameView.classList.add('active');
+      this.gameView.style.setProperty('display', 'flex', 'important');
+    }
+  }
+
+  showLobbyView() {
+    if (this.gameView) {
+      this.gameView.classList.remove('active');
+      this.gameView.style.setProperty('display', 'none', 'important');
+    }
+    if (this.lobbyView) {
+      this.lobbyView.classList.add('active');
+      this.lobbyView.style.setProperty('display', 'flex', 'important');
+    }
   }
 
   updateDifficultyBadge(difficulty, round = 1) {

@@ -13,12 +13,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=20260921-2">
 </head>
 <body>
 
   <!-- ================= LOBBY SCREEN ================= -->
-  <div id="view-lobby" class="screen-view active">
+  <div id="view-lobby" class="screen-view active" style="display: flex !important;">
     <div class="lobby-card">
       <div class="logo-container">
         <span class="logo-icon">🎨</span>
@@ -97,7 +97,7 @@
   </div>
 
   <!-- ================= GAME SCREEN ================= -->
-  <div id="view-game" class="screen-view">
+  <div id="view-game" class="screen-view" style="display: none !important;">
     <!-- Top Game Bar -->
     <header class="game-header">
       <div class="header-left">
@@ -296,7 +296,7 @@
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
-  <script src="canvas.js"></script>
-  <script src="game.js"></script>
+  <script src="canvas.js?v=20260921-2"></script>
+  <script src="game.js?v=20260921-2"></script>
 </body>
 </html>
