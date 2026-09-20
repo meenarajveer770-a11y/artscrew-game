@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="ARTSCREW">
+  <meta name="theme-color" content="#4361ee">
+  <link rel="manifest" href="/manifest.json">
+  <title>ARTSCREW - draw and guess</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ================= LOBBY SCREEN ================= -->
+  <div id="view-lobby" class="screen-view active">
+    <div class="lobby-card">
+      <div class="logo-container">
+        <span class="logo-icon">🎨</span>
+        <h1 class="logo-title">ARTSCREW</h1>
+        <p class="logo-subtitle">draw and guess</p>
+        <p class="logo-sub">Multiplayer • Progressive Levels • Streaks</p>
+      </div>
+
+      <!-- Avatar Customizer -->
+      <div class="avatar-section">
+        <div class="avatar-preview-box">
+          <div id="avatar-preview" class="player-avatar large">
+            <div class="avatar-face">
+              <div class="avatar-eyes">👀</div>
+              <div class="avatar-mouth">👄</div>
+            </div>
+          </div>
+          <button id="btn-random-avatar" class="btn-icon" title="Randomize Avatar">🎲</button>
+        </div>
+
+        <div class="avatar-controls">
+          <div class="color-picker-row" id="avatar-colors"></div>
+        </div>
+      </div>
+
+      <!-- Player Info & Room Join -->
+      <div class="lobby-form">
+        <div class="input-group">
+          <label for="input-player-name">Your Artist Name</label>
+          <input type="text" id="input-player-name" placeholder="Enter nickname (e.g. Picasso)" maxlength="16" autofocus autocomplete="off">
+        </div>
+
+        <div class="lobby-actions">
+          <button id="btn-quickplay" class="btn btn-primary btn-pulse btn-play-large">
+            <span>▶️ PLAY (Quick Match)</span>
+          </button>
+
+          <div class="divider"><span>OR PLAY WITH FRIENDS</span></div>
+
+          <button id="btn-create-room" class="btn btn-secondary">
+            <span>🔒 Create Private Room</span>
+          </button>
+
+          <div class="join-room-row">
+            <input type="text" id="input-room-code" placeholder="ROOM CODE" maxlength="4" autocomplete="off" style="text-transform: uppercase;">
+            <button id="btn-join-room" class="btn btn-secondary">Join</button>
+          </div>
+        </div>
+
+        <!-- Room Settings Toggle -->
+        <details class="room-settings-accordion">
+          <summary>⚙️ Room Settings & Game Modes</summary>
+          <div class="settings-body">
+            <div class="setting-item">
+              <label>Level Progression Mode:</label>
+              <select id="setting-difficulty" class="select-styled">
+                <option value="dynamic" selected>⚡ Dynamic (R1: Basic, R2: Everyday, R3: Creative, R4+: Pro)</option>
+                <option value="easy">🟢 Easy Mode (Simple words, 80s timer, 3 hints)</option>
+                <option value="medium">🟡 Medium Mode (65s timer, 2 hints)</option>
+                <option value="hard">🔴 Hard Mode (50s timer, 1 hint)</option>
+                <option value="extreme">🔥 Extreme / Chaos Mode (35s timer, 0 hints!)</option>
+              </select>
+            </div>
+            <div class="setting-item">
+              <label>Rounds: <span id="val-rounds">3</span></label>
+              <input type="range" id="setting-rounds" min="2" max="8" value="3">
+            </div>
+            <div class="setting-item">
+              <label>Custom Words (optional):</label>
+              <input type="text" id="setting-custom-words" placeholder="superman, pizza, minecraft, basketball">
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= GAME SCREEN ================= -->
+  <div id="view-game" class="screen-view">
+    <!-- Top Game Bar -->
+    <header class="game-header">
+      <div class="header-left">
+        <div class="brand-small">ARTSCREW</div>
+        <div class="round-badge" id="badge-round">Round 1 / 3</div>
+        <div class="difficulty-badge" id="badge-difficulty">🟢 Basic (80s)</div>
+        <div class="room-badge" id="badge-room-code" title="Click to copy invite link">
+          Room: <strong id="display-room-code">----</strong> 📋
+        </div>
+      </div>
+
+      <!-- Secret Word or Hints & Category -->
+      <div class="header-center">
+        <div id="word-category-badge" class="word-category-badge" style="display: none;">📁 Category: <span>General</span></div>
+        <div id="word-display" class="word-display">
+          <span class="placeholder-text">Waiting to start...</span>
+        </div>
+      </div>
+
+      <!-- Timer & Controls -->
+      <div class="header-right">
+        <div class="timer-box" id="timer-box">
+          <span id="timer-number">--</span>
+        </div>
+        <button id="btn-sound-toggle" class="btn-icon-bar" title="Toggle Sound">🔊</button>
+      </div>
+    </header>
+
+    <!-- Main Game Arena -->
+    <main class="game-arena">
+      
+      <!-- Left: Player Leaderboard -->
+      <aside class="players-sidebar">
+        <div class="sidebar-header">
+          <h3>Players (<span id="player-count">0</span>)</h3>
+        </div>
+        <div class="player-list" id="player-list"></div>
+
+        <!-- Host Start Button -->
+        <div id="host-controls" class="host-controls" style="display: none;">
+          <button id="btn-start-game" class="btn btn-success btn-block">🚀 Start Game</button>
+          <p class="host-note">Need at least 2 players to start</p>
+        </div>
+      </aside>
+
+      <!-- Center: Drawing Board & Tools -->
+      <section class="canvas-section">
+        <div class="canvas-wrapper" id="canvas-wrapper">
+          <canvas id="drawing-canvas" width="800" height="550"></canvas>
+
+          <!-- Drawer Status Banner -->
+          <div id="drawer-banner" class="drawer-banner" style="display: none;">
+            <span id="drawer-banner-text">✏️ You are drawing!</span>
+          </div>
+
+          <!-- Floating Reaction Stream Overlay -->
+          <div id="reaction-stream" class="reaction-stream"></div>
+        </div>
+
+        <!-- Floating Reactions Quick Bar -->
+        <div class="reaction-bar">
+          <span class="reaction-label">Live Reactions:</span>
+          <div class="reaction-buttons">
+            <button class="btn-reaction" data-emoji="👏">👏</button>
+            <button class="btn-reaction" data-emoji="🔥">🔥</button>
+            <button class="btn-reaction" data-emoji="😂">😂</button>
+            <button class="btn-reaction" data-emoji="❤️">❤️</button>
+            <button class="btn-reaction" data-emoji="😮">😮</button>
+            <button class="btn-reaction" data-emoji="💩">💩</button>
+            <button class="btn-reaction" data-emoji="💯">💯</button>
+          </div>
+        </div>
+
+        <!-- Advanced Drawing Toolbar -->
+        <div class="toolbar" id="toolbar">
+          
+          <!-- Pencil Size Controls (6 Presets + Slider + Preview) -->
+          <div class="tool-group brush-control-group">
+            <div class="size-preset-buttons">
+              <button class="tool-btn size-preset-btn" data-size="2" title="Micro (2px)"><span class="dot size-2"></span></button>
+              <button class="tool-btn size-preset-btn" data-size="6" title="Thin (6px)"><span class="dot size-6"></span></button>
+              <button class="tool-btn size-preset-btn active" data-size="12" title="Medium (12px)"><span class="dot size-12"></span></button>
+              <button class="tool-btn size-preset-btn" data-size="22" title="Thick (22px)"><span class="dot size-22"></span></button>
+              <button class="tool-btn size-preset-btn" data-size="36" title="Chunky (36px)"><span class="dot size-36"></span></button>
+              <button class="tool-btn size-preset-btn" data-size="50" title="Giant (50px)"><span class="dot size-50"></span></button>
+            </div>
+
+            <!-- Fine-Tuning Slider with Live Circle Indicator -->
+            <div class="slider-wrapper">
+              <input type="range" id="brush-size-slider" min="1" max="60" value="12" title="Drag to adjust pencil size">
+              <span id="brush-size-label">12px</span>
+              <div class="brush-preview-circle">
+                <span id="brush-preview-dot"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Color Palette (24 Colors + Custom Color Picker) -->
+          <div class="palette-container">
+            <div class="color-palette" id="color-palette"></div>
+            <div class="custom-color-wrapper" title="Pick any custom color">
+              <input type="color" id="custom-color-picker" value="#000000">
+            </div>
+          </div>
+
+          <!-- Drawing Tools & Background Themes -->
+          <div class="tool-group actions">
+            <button class="tool-btn" id="tool-eraser" title="Eraser">🧹</button>
+            <button class="tool-btn" id="tool-fill" title="Fill Bucket">🪣</button>
+            <button class="tool-btn" id="tool-undo" title="Undo Stroke">↩️</button>
+            <button class="tool-btn" id="tool-clear" title="Clear Canvas">🗑️</button>
+            <select id="select-bg-theme" class="theme-select" title="Canvas Background">
+              <option value="white">⚪ Paper</option>
+              <option value="black">⚫ Blackboard</option>
+              <option value="parchment">📜 Parchment</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right: Chat & Guesses -->
+      <aside class="chat-sidebar">
+        <div class="sidebar-header">
+          <h3>Chat & Guesses</h3>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+          <div class="chat-msg system">Welcome to ARTSCREW! Guess the drawing in the box below.</div>
+        </div>
+        <form class="chat-form" id="chat-form">
+          <input type="text" id="input-guess" placeholder="Type your guess here..." maxlength="100" autocomplete="off">
+          <button type="submit" class="btn btn-send">Send</button>
+        </form>
+      </aside>
+
+    </main>
+  </div>
+
+  <!-- ================= MODALS & OVERLAYS ================= -->
+
+  <!-- Word Selection Modal -->
+  <div id="modal-word-choice" class="modal-overlay">
+    <div class="modal-content word-choice-modal">
+      <h2>Your Turn to Draw!</h2>
+      <div class="difficulty-tag-modal" id="modal-difficulty-tag">Round 1 • Basic Words</div>
+      <p>Choose a word within <span id="word-choice-timer">15</span>s:</p>
+      <div class="word-choice-buttons" id="word-choice-container"></div>
+    </div>
+  </div>
+
+  <!-- Round End Overlay with Star Rating -->
+  <div id="overlay-round-end" class="modal-overlay">
+    <div class="modal-content round-end-modal">
+      <button class="modal-close-btn" id="btn-close-round-end" title="Close" aria-label="Close">✖</button>
+      <h2 id="round-end-title">Time's Up!</h2>
+      <p class="revealed-word-text">The word was: <strong id="revealed-word" class="highlight">---</strong></p>
+      <div class="revealed-category-text" id="revealed-category">Category: General</div>
+
+      <!-- Star Rating for Drawer -->
+      <div class="star-rating-box" id="star-rating-box">
+        <p>Rate the artist's drawing:</p>
+        <div class="stars-row">
+          <button class="star-btn" data-star="1">⭐</button>
+          <button class="star-btn" data-star="2">⭐</button>
+          <button class="star-btn" data-star="3">⭐</button>
+          <button class="star-btn" data-star="4">⭐</button>
+          <button class="star-btn" data-star="5">⭐</button>
+        </div>
+        <span id="rating-feedback-text" class="rating-feedback"></span>
+      </div>
+
+      <div class="round-scores-list" id="round-scores-list"></div>
+
+      <!-- Live countdown indicator -->
+      <div class="round-timer-countdown" id="round-end-countdown">
+        ⏱️ Next round starting in <strong id="round-pause-seconds">7</strong>s...
+      </div>
+
+      <div class="modal-actions round-end-actions" style="margin-top: 14px;">
+        <button id="btn-next-round" class="btn btn-primary">➡️ Next / Continue</button>
+        <button id="btn-save-drawing" class="btn btn-secondary">📸 Save Artwork (PNG)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Over Podium Overlay -->
+  <div id="overlay-game-over" class="modal-overlay">
+    <div class="modal-content game-over-modal">
+      <button class="modal-close-btn" id="btn-close-game-over" title="Close" aria-label="Close">✖</button>
+      <div class="trophy-icon">🏆</div>
+      <h2>Game Finished!</h2>
+      <div class="podium-container" id="podium-container"></div>
+      <div class="game-over-actions">
+        <button id="btn-play-again" class="btn btn-primary btn-large">Play Again (Back to Lobby)</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="canvas.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
