@@ -15,14 +15,19 @@ const io = new Server(server, {
 
 const PORT = process.env.PORT || 3000;
 
-app.use(express.static(path.join(__dirname, 'public')));
+const fs = require('fs');
+const publicDir = fs.existsSync(path.join(__dirname, 'public', 'index.html'))
+  ? path.join(__dirname, 'public')
+  : __dirname;
+
+app.use(express.static(publicDir));
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', name: 'ARTSCREW - draw and guess', time: new Date() });
 });
 
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(publicDir, 'index.html'));
 });
 
 const roomManager = new RoomManager(io);
