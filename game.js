@@ -66,7 +66,29 @@ class SoundEffects {
 
 class GameClient {
   constructor() {
-    this.socket = io();
+    // Connect to Render backend if loaded from an external host (e.g. Cloudflare Pages or WebView), or local server if on localhost
+    const isLocalhost = window.location.hostname === 'localhost' ||
+                        window.location.hostname === '127.0.0.1' ||
+                        window.location.hostname.startsWith('192.168.') ||
+                        window.location.hostname.startsWith('172.');
+
+    const backendUrl = isLocalhost ? undefined : 'https://artscrew-game.onrender.com';
+
+    this.socket = io(backendUrl, {
+      transports: ['websocket', 'polling'],
+      reconnection: true,
+      reconnectionAttempts: 20,
+      reconnectionDelay: 1000,
+      timeout: 20000
+    });
+
+    // Reconnect automatically when phone screen turns back on or app is reopened
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && !this.socket.connected) {
+        this.socket.connect();
+      }
+    });
+
     this.sound = new SoundEffects();
     this.drawingEngine = null;
 
